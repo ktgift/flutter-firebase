@@ -1,0 +1,136 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:flutter_firebase/model/Student.dart';
+import 'package:form_field_validator/form_field_validator.dart';
+
+class FormScreen extends StatefulWidget {
+  const FormScreen({super.key});
+
+  @override
+  State<FormScreen> createState() => _FormScreenState();
+}
+
+class _FormScreenState extends State<FormScreen> {
+  final formKey = GlobalKey<
+      FormState>(); //เมื่อมันการกดบันทึก มันจะดึงข้อมูลใน field มาเก็บไว้ใน formState
+  Student myStudent = Student(); //ประกาศ obj จาก class student
+
+  //เตรียม fireBase
+  final Future<FirebaseApp> firebase = Firebase.initializeApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: firebase,
+        builder: (context, snapshot) {
+          //กรณ๊เชื่อมต่อแล้วมี error
+          if (snapshot.hasError) {
+            return Scaffold(
+              appBar: AppBar(title: Text('Error')),
+              body: Center(child: Text("${snapshot}")),
+            );
+          }
+          // ถ้าไม่เจอ error  และ load เสร็จ ให้แสดง หน้า form
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Scaffold(
+              appBar: AppBar(
+                title: Text('แบบฟอร์มบันทึนคะแนนสอบ'),
+              ),
+              body: Container(
+                padding: EdgeInsets.all(20),
+                child: Form(
+                    key: formKey, //ผูก formkey ที่เราสร้่าง
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'ชื่อ:',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          TextFormField(
+                            validator: RequiredValidator(
+                                errorText:
+                                    'กรุณากรอกชื่อ'), //ใส่ validator ห้ามว่าง และ ใส่ massage error
+                            onSaved: (String? fname) {
+                              myStudent.fname =
+                                  fname; //นำค่าไปผูกกับ obj myStudent
+                            },
+                          ),
+                          SizedBox(
+                            height: 18,
+                          ),
+                          Text('นามสกุล:', style: TextStyle(fontSize: 16)),
+                          TextFormField(
+                            validator: RequiredValidator(
+                                errorText: 'กรุณากรอกนามสกุล'),
+                            onSaved: (String? lname) {
+                              myStudent.lname = lname;
+                            },
+                          ),
+                          SizedBox(height: 18),
+                          Text('อีเมล:', style: TextStyle(fontSize: 16)),
+                          TextFormField(
+                            validator: MultiValidator([
+                              EmailValidator(
+                                  errorText:
+                                      'รูปแบบอีเมลไม่ถูกต้อง'), //เช็คว่าเป็นรูปแบบอีเมลไหม
+                              RequiredValidator(errorText: 'กรุณากรอกอีเมล')
+                            ]), //MultiValidator ใช้ระบุ validate มากกว่า 1
+                            onSaved: (String? email) {
+                              myStudent.email = email;
+                            },
+                            keyboardType: TextInputType
+                                .emailAddress, //กำหนดการแสดงคีย์บอร์ดให้แสดงเป็นของการกรอกอีเมล
+                          ),
+                          SizedBox(
+                            height: 18,
+                          ),
+                          Text('คะแนน:', style: TextStyle(fontSize: 16)),
+                          TextFormField(
+                            validator:
+                                RequiredValidator(errorText: 'กรุณากรอกคะแนน'),
+                            onSaved: (String? score) {
+                              myStudent.score = score;
+                            },
+                            keyboardType: TextInputType
+                                .number, //กำหนดคีย์บอร์ดให้แสดงเป็นตัวเลข
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 18.0, 0, 0),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                child: Text(
+                                  'บันทึก',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                                onPressed: () {
+                                  if (formKey.currentState!.validate()) {
+                                    //ให้ form ทำการ validate
+                                    formKey.currentState!
+                                        .save(); //เป็นการสั่งให้ formKey ไปเรียกใช้งาน onSaved ทุกตัว
+                                    print('fname = ${myStudent.fname}');
+                                    print('lname = ${myStudent.lname}');
+                                    print('email = ${myStudent.email}');
+                                    print('score =  ${myStudent.score}');
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )),
+              ),
+            );
+          }
+          //ถ้าไม่เจอ error ให้แสดงการโหลด
+          return Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        });
+  }
+}
