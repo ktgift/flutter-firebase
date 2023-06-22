@@ -120,6 +120,8 @@ class _FormScreenState extends State<FormScreen> {
                                     // print('email = ${myStudent.email}');
                                     // print('score =  ${myStudent.score}');
 
+                                    FocusScope.of(context).unfocus(); // Close the keyboard
+                                    
                                     //ทำการบันทึกช้อมูลลง collection จะบันทึกเหมือน json
                                     await _studentCollection.add({
                                       "fname": myStudent.fname,
