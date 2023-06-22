@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:flutter_firebase/firebase_options.dart';
 import 'package:flutter_firebase/model/Student.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 
@@ -13,19 +15,28 @@ class FormScreen extends StatefulWidget {
 }
 
 class _FormScreenState extends State<FormScreen> {
-  final formKey = GlobalKey<
-      FormState>(); //เมื่อมันการกดบันทึก มันจะดึงข้อมูลใน field มาเก็บไว้ใน formState
+  final formKey = GlobalKey<FormState>(); //เมื่อมันการกดบันทึก มันจะดึงข้อมูลใน field มาเก็บไว้ใน formState
   Student myStudent = Student(); //ประกาศ obj จาก class student
 
   //เตรียม fireBase
-  final Future<FirebaseApp> firebase = Firebase.initializeApp();
+  final Future<FirebaseApp> firebase = Firebase.initializeApp(
+    // options: DefaultFirebaseOptions.currentPlatform,
+      options: FirebaseOptions(
+          apiKey: 'AIzaSyCgyiYPs9xsSCXMlN-CrsgoaKxiTMV8cFA',
+          appId: '1:526901478982:android:841f852f739d9814d32c47',
+          messagingSenderId: '526901478982',
+          projectId: 'score-record-flutter-app')
+      );
+
+  //สร้าง collection
+  CollectionReference _studentCollection = FirebaseFirestore.instance.collection("students");
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: firebase,
         builder: (context, snapshot) {
-          //กรณ๊เชื่อมต่อแล้วมี error
+          //กรณีเชื่อมต่อแล้วมี error
           if (snapshot.hasError) {
             return Scaffold(
               appBar: AppBar(title: Text('Error')),
@@ -48,12 +59,10 @@ class _FormScreenState extends State<FormScreen> {
                         children: [
                           Text(
                             'ชื่อ:',
-                            style: TextStyle(fontSize: 16),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700]),
                           ),
                           TextFormField(
-                            validator: RequiredValidator(
-                                errorText:
-                                    'กรุณากรอกชื่อ'), //ใส่ validator ห้ามว่าง และ ใส่ massage error
+                            validator: RequiredValidator(errorText:'กรุณากรอกชื่อ'), //ใส่ validator ห้ามว่าง และ ใส่ massage error
                             onSaved: (String? fname) {
                               myStudent.fname =
                                   fname; //นำค่าไปผูกกับ obj myStudent
@@ -62,36 +71,31 @@ class _FormScreenState extends State<FormScreen> {
                           SizedBox(
                             height: 18,
                           ),
-                          Text('นามสกุล:', style: TextStyle(fontSize: 16)),
+                          Text('นามสกุล:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700])),
                           TextFormField(
-                            validator: RequiredValidator(
-                                errorText: 'กรุณากรอกนามสกุล'),
+                            validator: RequiredValidator(errorText: 'กรุณากรอกนามสกุล'),
                             onSaved: (String? lname) {
                               myStudent.lname = lname;
                             },
                           ),
                           SizedBox(height: 18),
-                          Text('อีเมล:', style: TextStyle(fontSize: 16)),
+                          Text('อีเมล:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700])),
                           TextFormField(
                             validator: MultiValidator([
-                              EmailValidator(
-                                  errorText:
-                                      'รูปแบบอีเมลไม่ถูกต้อง'), //เช็คว่าเป็นรูปแบบอีเมลไหม
+                              EmailValidator(errorText:'รูปแบบอีเมลไม่ถูกต้อง'), //เช็คว่าเป็นรูปแบบอีเมลไหม
                               RequiredValidator(errorText: 'กรุณากรอกอีเมล')
                             ]), //MultiValidator ใช้ระบุ validate มากกว่า 1
                             onSaved: (String? email) {
                               myStudent.email = email;
                             },
-                            keyboardType: TextInputType
-                                .emailAddress, //กำหนดการแสดงคีย์บอร์ดให้แสดงเป็นของการกรอกอีเมล
+                            keyboardType: TextInputType.emailAddress, //กำหนดการแสดงคีย์บอร์ดให้แสดงเป็นของการกรอกอีเมล
                           ),
                           SizedBox(
                             height: 18,
                           ),
-                          Text('คะแนน:', style: TextStyle(fontSize: 16)),
+                          Text('คะแนน:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700])),
                           TextFormField(
-                            validator:
-                                RequiredValidator(errorText: 'กรุณากรอกคะแนน'),
+                            validator: RequiredValidator(errorText: 'กรุณากรอกคะแนน'),
                             onSaved: (String? score) {
                               myStudent.score = score;
                             },
@@ -105,19 +109,29 @@ class _FormScreenState extends State<FormScreen> {
                               child: ElevatedButton(
                                 child: Text(
                                   'บันทึก',
-                                  style: TextStyle(fontSize: 16),
+                                  style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.w600),
                                 ),
-                                onPressed: () {
+                                onPressed: () async {
                                   if (formKey.currentState!.validate()) {
                                     //ให้ form ทำการ validate
-                                    formKey.currentState!
-                                        .save(); //เป็นการสั่งให้ formKey ไปเรียกใช้งาน onSaved ทุกตัว
-                                    print('fname = ${myStudent.fname}');
-                                    print('lname = ${myStudent.lname}');
-                                    print('email = ${myStudent.email}');
-                                    print('score =  ${myStudent.score}');
+                                    formKey.currentState!.save(); //เป็นการสั่งให้ formKey ไปเรียกใช้งาน onSaved ทุกตัว
+                                    // print('fname = ${myStudent.fname}');
+                                    // print('lname = ${myStudent.lname}');
+                                    // print('email = ${myStudent.email}');
+                                    // print('score =  ${myStudent.score}');
+
+                                    //ทำการบันทึกช้อมูลลง collection จะบันทึกเหมือน json
+                                    await _studentCollection.add({
+                                      "fname": myStudent.fname,
+                                      "lname": myStudent.lname,
+                                      "email": myStudent.email,
+                                      "score": myStudent.score
+                                    });
+                                    //clear แบบ form เพื่อให้ช่องเป็นค่าว่าง หลัง save
+                                    formKey.currentState?.reset();
                                   }
                                 },
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow),
                               ),
                             ),
                           ),
