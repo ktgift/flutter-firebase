@@ -47,7 +47,7 @@ class _FormScreenState extends State<FormScreen> {
           if (snapshot.connectionState == ConnectionState.done) {
             return Scaffold(
               appBar: AppBar(
-                title: Text('แบบฟอร์มบันทึนคะแนนสอบ'),
+                title: Text('แบบฟอร์มบันทึกข้อมูลนักเรียน'),
               ),
               body: Container(
                 padding: EdgeInsets.all(20),
@@ -68,15 +68,22 @@ class _FormScreenState extends State<FormScreen> {
                                   fname; //นำค่าไปผูกกับ obj myStudent
                             },
                           ),
-                          SizedBox(
-                            height: 18,
-                          ),
+                          SizedBox(height: 18,),
                           Text('นามสกุล:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700])),
                           TextFormField(
                             validator: RequiredValidator(errorText: 'กรุณากรอกนามสกุล'),
                             onSaved: (String? lname) {
                               myStudent.lname = lname;
                             },
+                          ),
+                          SizedBox(height: 18,),
+                          Text('ชื่อเล่น:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700])),
+                          TextFormField(
+                            validator: RequiredValidator(errorText: 'กรุณากรอกชื่อเล่น'),
+                            onSaved: (String? nickname) {
+                              myStudent.nickname = nickname;
+                            },
+                            keyboardType: TextInputType.text,
                           ),
                           SizedBox(height: 18),
                           Text('อีเมล:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700])),
@@ -90,6 +97,15 @@ class _FormScreenState extends State<FormScreen> {
                             },
                             keyboardType: TextInputType.emailAddress, //กำหนดการแสดงคีย์บอร์ดให้แสดงเป็นของการกรอกอีเมล
                           ),
+                          SizedBox(height: 18,),
+                          Text('ห้อง:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700]),),
+                          TextFormField(
+                            validator: RequiredValidator(errorText: 'กรุณากรอกเลขห้อง'),
+                            onSaved: (String? room) {
+                              myStudent.room = room;
+                            },
+                            keyboardType: TextInputType.number,
+                          ),
                           SizedBox(
                             height: 18,
                           ),
@@ -99,8 +115,7 @@ class _FormScreenState extends State<FormScreen> {
                             onSaved: (String? score) {
                               myStudent.score = score;
                             },
-                            keyboardType: TextInputType
-                                .number, //กำหนดคีย์บอร์ดให้แสดงเป็นตัวเลข
+                            keyboardType: TextInputType.number, //กำหนดคีย์บอร์ดให้แสดงเป็นตัวเลข
                           ),
                           Padding(
                             padding: const EdgeInsets.fromLTRB(0, 18.0, 0, 0),
@@ -115,19 +130,17 @@ class _FormScreenState extends State<FormScreen> {
                                   if (formKey.currentState!.validate()) {
                                     //ให้ form ทำการ validate
                                     formKey.currentState!.save(); //เป็นการสั่งให้ formKey ไปเรียกใช้งาน onSaved ทุกตัว
-                                    // print('fname = ${myStudent.fname}');
-                                    // print('lname = ${myStudent.lname}');
-                                    // print('email = ${myStudent.email}');
-                                    // print('score =  ${myStudent.score}');
-
+                                    
                                     FocusScope.of(context).unfocus(); // Close the keyboard
                                     
                                     //ทำการบันทึกช้อมูลลง collection จะบันทึกเหมือน json
                                     await _studentCollection.add({
                                       "fname": myStudent.fname,
                                       "lname": myStudent.lname,
+                                      "nickname": myStudent.nickname,
                                       "email": myStudent.email,
-                                      "score": myStudent.score
+                                      "score": myStudent.score,
+                                      "room": myStudent.room
                                     });
                                     //clear แบบ form เพื่อให้ช่องเป็นค่าว่าง หลัง save
                                     formKey.currentState?.reset();

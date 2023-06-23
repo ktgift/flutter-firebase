@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase/model/ListTileRoster.dart';
 import 'package:flutter_firebase/screen/scoreScreen.dart';
 import 'package:flutter_firebase/screen/formscreen.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -53,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
           backgroundColor: Colors.indigo[700],
           bottomNavigationBar: TabBar(
             tabs: [
-              Tab(text: 'เพิ่มคะแนน'),
+              Tab(text: 'บันทึกช้อมูล'),
               Tab(text: 'รายงานคะแนน'),
               Tab(text: 'รายชื่อนักเรียน',)
             ]
