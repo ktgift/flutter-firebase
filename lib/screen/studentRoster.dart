@@ -28,7 +28,7 @@ class _StudentRosterState extends State<StudentRoster> {
               itemCount: snapshot.data!.docs.length,
               itemBuilder: (context, index) {
                 var doc = snapshot.data!.docs[index];
-                return ListTileRoster(doc['fname'], doc['lname'], doc['email'], doc['nickname']);
+                return ListTileRoster(doc['fname'], doc['lname'], doc['email'], doc['nickname'], doc['room']);
               },
               // children: snapshot.data!.docs.map((doc) {
               //   return ListTileRoster(doc['fname'], doc['lname'], doc['email']);

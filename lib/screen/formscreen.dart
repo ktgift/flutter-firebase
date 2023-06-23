@@ -15,6 +15,12 @@ class FormScreen extends StatefulWidget {
 }
 
 class _FormScreenState extends State<FormScreen> {
+  final TextStyle headerText = TextStyle(
+    fontSize: 16, 
+    fontWeight: FontWeight.bold, 
+    color: Colors.grey[700]
+  );
+
   final formKey = GlobalKey<FormState>(); //เมื่อมันการกดบันทึก มันจะดึงข้อมูลใน field มาเก็บไว้ใน formState
   Student myStudent = Student(); //ประกาศ obj จาก class student
 
@@ -59,7 +65,7 @@ class _FormScreenState extends State<FormScreen> {
                         children: [
                           Text(
                             'ชื่อ:',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700]),
+                            style: headerText,
                           ),
                           TextFormField(
                             validator: RequiredValidator(errorText:'กรุณากรอกชื่อ'), //ใส่ validator ห้ามว่าง และ ใส่ massage error
@@ -69,7 +75,7 @@ class _FormScreenState extends State<FormScreen> {
                             },
                           ),
                           SizedBox(height: 18,),
-                          Text('นามสกุล:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700])),
+                          Text('นามสกุล:', style: headerText),
                           TextFormField(
                             validator: RequiredValidator(errorText: 'กรุณากรอกนามสกุล'),
                             onSaved: (String? lname) {
@@ -77,7 +83,7 @@ class _FormScreenState extends State<FormScreen> {
                             },
                           ),
                           SizedBox(height: 18,),
-                          Text('ชื่อเล่น:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700])),
+                          Text('ชื่อเล่น:', style: headerText),
                           TextFormField(
                             validator: RequiredValidator(errorText: 'กรุณากรอกชื่อเล่น'),
                             onSaved: (String? nickname) {
@@ -86,7 +92,7 @@ class _FormScreenState extends State<FormScreen> {
                             keyboardType: TextInputType.text,
                           ),
                           SizedBox(height: 18),
-                          Text('อีเมล:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700])),
+                          Text('อีเมล:', style: headerText),
                           TextFormField(
                             validator: MultiValidator([
                               EmailValidator(errorText:'รูปแบบอีเมลไม่ถูกต้อง'), //เช็คว่าเป็นรูปแบบอีเมลไหม
@@ -98,7 +104,7 @@ class _FormScreenState extends State<FormScreen> {
                             keyboardType: TextInputType.emailAddress, //กำหนดการแสดงคีย์บอร์ดให้แสดงเป็นของการกรอกอีเมล
                           ),
                           SizedBox(height: 18,),
-                          Text('ห้อง:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700]),),
+                          Text('ห้อง:', style: headerText),
                           TextFormField(
                             validator: RequiredValidator(errorText: 'กรุณากรอกเลขห้อง'),
                             onSaved: (String? room) {
@@ -109,11 +115,19 @@ class _FormScreenState extends State<FormScreen> {
                           SizedBox(
                             height: 18,
                           ),
-                          Text('คะแนน:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey[700])),
+                          Text('คะแนน:', style: headerText),
                           TextFormField(
-                            validator: RequiredValidator(errorText: 'กรุณากรอกคะแนน'),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'กรุณากรอกคะแนน';
+                              }
+                              final score = int.parse(value);
+                              if(score > 100) {
+                                return 'คะแนนต้องไม่เกิน 100';
+                              }
+                            },
                             onSaved: (String? score) {
-                              myStudent.score = score;
+                              myStudent.score = score ?? '';
                             },
                             keyboardType: TextInputType.number, //กำหนดคีย์บอร์ดให้แสดงเป็นตัวเลข
                           ),
